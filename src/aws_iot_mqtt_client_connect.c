@@ -462,7 +462,7 @@ static IoT_Error_t _aws_iot_mqtt_internal_connect(AWS_IoT_Client *pClient, IoT_C
  * @return An IoT Error Type defining successful/failed connection
  */
 IoT_Error_t aws_iot_mqtt_connect(AWS_IoT_Client *pClient, IoT_Client_Connect_Params *pConnectParams) {
-	IoT_Error_t rc, disconRc;
+	IoT_Error_t rc;
 	ClientState clientState;
 #if !DISABLE_METRICS
 	char pUsernameTemp[SDK_METRICS_LEN] = {0};
