@@ -470,6 +470,7 @@ void HandleExpiredResponseCallbacks(void) {
 
 static void shadow_delta_callback(AWS_IoT_Client *pClient, char *topicName,
 								  uint16_t topicNameLen, IoT_Publish_Message_Params *params, void *pData) {
+		IOT_WARN("entered shadow_delta_callback");
 	int32_t tokenCount;
 	uint32_t i = 0;
 	void *pJsonHandler = NULL;
@@ -516,9 +517,15 @@ static void shadow_delta_callback(AWS_IoT_Client *pClient, char *topicName,
 				if(tokenTable[i].callback != NULL) {
 					tokenTable[i].callback(shadowRxBuf + DataPosition, dataLength,
 										   (jsonStruct_t *) tokenTable[i].pStruct);
-				}
-			}
-		}
+				} else {
+                            IOT_WARN("isJsonKeyMatchingAndUpdateValue but no callback");
+                                }
+			} else {
+                            IOT_WARN("Not isJsonKeyMatchingAndUpdateValue");
+                        }
+		} else {
+                            IOT_WARN("tokentable %d is free", i);
+                }
 	}
 }
 

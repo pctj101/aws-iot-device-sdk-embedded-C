@@ -115,23 +115,30 @@ static IoT_Error_t _aws_iot_mqtt_keep_alive(AWS_IoT_Client *pClient) {
 
 	FUNC_ENTRY;
 
+        ESP_LOGE("_imka", "Entry");
 	if(NULL == pClient) {
+                ESP_LOGE("_imka", "NULL_VALUE_ERROR");
+
 		FUNC_EXIT_RC(NULL_VALUE_ERROR);
 	}
 
 	if(0 == pClient->clientData.keepAliveInterval) {
+                ESP_LOGD("_imka", "cD kai 0");
 		FUNC_EXIT_RC(SUCCESS);
 	}
 
 	if(!has_timer_expired(&pClient->pingTimer)) {
+                ESP_LOGD("_imka", "not timer exp");
 		FUNC_EXIT_RC(SUCCESS);
 	}
 
 	if(pClient->clientStatus.isPingOutstanding) {
+                ESP_LOGE("_imka", "cs Ping outstanding, disconnect");
 		rc = _aws_iot_mqtt_handle_disconnect(pClient);
 		FUNC_EXIT_RC(rc);
 	}
 
+        ESP_LOGD("_imka", "there is no ping outstanding - send one");
 	/* there is no ping outstanding - send one */
 	init_timer(&timer);
 
@@ -140,18 +147,21 @@ static IoT_Error_t _aws_iot_mqtt_keep_alive(AWS_IoT_Client *pClient) {
 	rc = aws_iot_mqtt_internal_serialize_zero(pClient->clientData.writeBuf, pClient->clientData.writeBufSize,
 											  PINGREQ, &serialized_len);
 	if(SUCCESS != rc) {
+            ESP_LOGE("_imka", "fail on aws_iot_mqtt_internal_serialize_zero");
 		FUNC_EXIT_RC(rc);
 	}
 
 	/* send the ping packet */
 	rc = aws_iot_mqtt_internal_send_packet(pClient, serialized_len, &timer);
 	if(SUCCESS != rc) {
+            ESP_LOGE("_imka", "fail on aws_iot_mqtt_internal_send_packet");
 		//If sending a PING fails we can no longer determine if we are connected.  In this case we decide we are disconnected and begin reconnection attempts
 		rc = _aws_iot_mqtt_handle_disconnect(pClient);
 		FUNC_EXIT_RC(rc);
 	}
 
 	pClient->clientStatus.isPingOutstanding = true;
+        ESP_LOGD("_imka", "start a timer to wait for PINGRESP from server");
 	/* start a timer to wait for PINGRESP from server */
 	countdown_sec(&pClient->pingTimer, pClient->clientData.keepAliveInterval);
 
