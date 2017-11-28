@@ -461,7 +461,7 @@ static IoT_Error_t _aws_iot_mqtt_internal_connect(AWS_IoT_Client *pClient, const
  *
  * @return An IoT Error Type defining successful/failed connection
  */
-IoT_Error_t aws_iot_mqtt_connect(AWS_IoT_Client *pClient, const IoT_Client_Connect_Params *pConnectParams) {
+IoT_Error_t aws_iot_mqtt_connect(AWS_IoT_Client *pClient, IoT_Client_Connect_Params *pConnectParams) {
 	IoT_Error_t rc;
 	ClientState clientState;
 #if !DISABLE_METRICS
@@ -485,6 +485,8 @@ IoT_Error_t aws_iot_mqtt_connect(AWS_IoT_Client *pClient, const IoT_Client_Conne
 
 #if !DISABLE_METRICS
 	if (NULL != pConnectParams) {
+                // declaring const IoT_Client_Connect_Params *pConnectParams will throw the following error on compile:
+                //   error:assignment of member 'usernameLen' in read-only object
 		pConnectParams->usernameLen = snprintf(pUsernameTemp, SDK_METRICS_LEN, SDK_METRICS_TEMPLATE, VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 		pConnectParams->pUsername = (char*)&pUsernameTemp;
 	}
